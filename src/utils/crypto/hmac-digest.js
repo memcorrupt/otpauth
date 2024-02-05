@@ -25,18 +25,38 @@ const OPENSSL_JSSHA_ALGO_MAP = {
  * @param {string} algorithm Algorithm.
  * @param {ArrayBuffer} key Key.
  * @param {ArrayBuffer} message Message.
- * @returns {ArrayBuffer} Digest.
+ * @returns {Promise<ArrayBuffer>} Digest.
  */
-const hmacDigest = (algorithm, key, message) => {
+const hmacDigest = async (algorithm, key, message) => {
   if (crypto?.createHmac) {
     const hmac = crypto.createHmac(algorithm, globalScope.Buffer.from(key));
     hmac.update(globalScope.Buffer.from(message));
     return hmac.digest().buffer;
+  }
+
+  const variant = OPENSSL_JSSHA_ALGO_MAP[algorithm.toUpperCase()];
+  if (typeof variant === "undefined") {
+    throw new TypeError("Unknown hash function");
+  }
+
+  if (globalScope?.crypto?.subtle) {
+    const crypto = globalScope.crypto;
+
+    const algorithm = {
+      name: "HMAC",
+      hash: variant,
+    };
+
+    const hmacKey = await crypto.subtle.importKey(
+      "raw",
+      key,
+      algorithm,
+      false,
+      ["sign"],
+    );
+
+    return await crypto.subtle.sign(algorithm, hmacKey, message);
   } else {
-    const variant = OPENSSL_JSSHA_ALGO_MAP[algorithm.toUpperCase()];
-    if (typeof variant === "undefined") {
-      throw new TypeError("Unknown hash function");
-    }
     const hmac = new jsSHA(variant, "ARRAYBUFFER");
     hmac.setHMACKey(key, "ARRAYBUFFER");
     hmac.update(message);

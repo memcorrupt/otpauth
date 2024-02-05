@@ -32,7 +32,7 @@ export class TOTP {
      * @param {number} [config.digits=6] Token length.
      * @param {number} [config.period=30] Token time-step duration.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     static generate({ secret, algorithm, digits, period, timestamp, }: {
         secret: Secret;
@@ -40,7 +40,7 @@ export class TOTP {
         digits?: number | undefined;
         period?: number | undefined;
         timestamp?: number | undefined;
-    }): string;
+    }): Promise<string>;
     /**
      * Validates a TOTP token.
      * @param {Object} config Configuration options.
@@ -51,7 +51,7 @@ export class TOTP {
      * @param {number} [config.period=30] Token time-step duration.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     static validate({ token, secret, algorithm, digits, period, timestamp, window, }: {
         token: string;
@@ -61,7 +61,7 @@ export class TOTP {
         period?: number | undefined;
         timestamp?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Creates a TOTP object.
      * @param {Object} [config] Configuration options.
@@ -121,24 +121,24 @@ export class TOTP {
      * Generates a TOTP token.
      * @param {Object} [config] Configuration options.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     generate({ timestamp }?: {
         timestamp?: number | undefined;
-    } | undefined): string;
+    } | undefined): Promise<string>;
     /**
      * Validates a TOTP token.
      * @param {Object} config Configuration options.
      * @param {string} config.token Token value.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     validate({ token, timestamp, window }: {
         token: string;
         timestamp?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Returns a Google Authenticator key URI.
      * @returns {string} URI.

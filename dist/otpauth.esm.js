@@ -791,14 +791,22 @@ const OPENSSL_JSSHA_ALGO_MAP = {
  * @param {string} algorithm Algorithm.
  * @param {ArrayBuffer} key Key.
  * @param {ArrayBuffer} message Message.
- * @returns {ArrayBuffer} Digest.
+ * @returns {Promise<ArrayBuffer>} Digest.
  */
-const hmacDigest = (algorithm, key, message) => {
-  {
-    const variant = OPENSSL_JSSHA_ALGO_MAP[algorithm.toUpperCase()];
-    if (typeof variant === "undefined") {
-      throw new TypeError("Unknown hash function");
-    }
+const hmacDigest = async (algorithm, key, message) => {
+  const variant = OPENSSL_JSSHA_ALGO_MAP[algorithm.toUpperCase()];
+  if (typeof variant === "undefined") {
+    throw new TypeError("Unknown hash function");
+  }
+  if (globalScope?.crypto?.subtle) {
+    const crypto = globalScope.crypto;
+    const algorithm = {
+      name: "HMAC",
+      hash: variant
+    };
+    const hmacKey = await crypto.subtle.importKey("raw", key, algorithm, false, ["sign"]);
+    return await crypto.subtle.sign(algorithm, hmacKey, message);
+  } else {
     const hmac = new ht(variant, "ARRAYBUFFER");
     hmac.setHMACKey(key, "ARRAYBUFFER");
     hmac.update(message);
@@ -1201,15 +1209,15 @@ class HOTP {
    * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
    * @param {number} [config.digits=6] Token length.
    * @param {number} [config.counter=0] Counter value.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
-  static generate({
+  static async generate({
     secret,
     algorithm = HOTP.defaults.algorithm,
     digits = HOTP.defaults.digits,
     counter = HOTP.defaults.counter
   }) {
-    const digest = new Uint8Array(hmacDigest(algorithm, secret.buffer, uintToBuf(counter)));
+    const digest = new Uint8Array(await hmacDigest(algorithm, secret.buffer, uintToBuf(counter)));
     const offset = digest[digest.byteLength - 1] & 15;
     const otp = ((digest[offset] & 127) << 24 | (digest[offset + 1] & 255) << 16 | (digest[offset + 2] & 255) << 8 | digest[offset + 3] & 255) % 10 ** digits;
     return otp.toString().padStart(digits, "0");
@@ -1219,7 +1227,7 @@ class HOTP {
    * Generates an HOTP token.
    * @param {Object} [config] Configuration options.
    * @param {number} [config.counter=this.counter++] Counter value.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   generate({
     counter = this.counter++
@@ -1241,9 +1249,9 @@ class HOTP {
    * @param {number} config.digits Token length.
    * @param {number} [config.counter=0] Counter value.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
-  static validate({
+  static async validate({
     token,
     secret,
     algorithm,
@@ -1255,7 +1263,7 @@ class HOTP {
     if (token.length !== digits) return null;
     let delta = null;
     for (let i = counter - window; i <= counter + window; ++i) {
-      const generatedToken = HOTP.generate({
+      const generatedToken = await HOTP.generate({
         secret,
         algorithm,
         digits,
@@ -1274,7 +1282,7 @@ class HOTP {
    * @param {string} config.token Token value.
    * @param {number} [config.counter=this.counter] Counter value.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   validate({
     token,
@@ -1395,7 +1403,7 @@ class TOTP {
    * @param {number} [config.digits=6] Token length.
    * @param {number} [config.period=30] Token time-step duration.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   static generate({
     secret,
@@ -1416,7 +1424,7 @@ class TOTP {
    * Generates a TOTP token.
    * @param {Object} [config] Configuration options.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   generate({
     timestamp = Date.now()
@@ -1440,7 +1448,7 @@ class TOTP {
    * @param {number} [config.period=30] Token time-step duration.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   static validate({
     token,
@@ -1467,7 +1475,7 @@ class TOTP {
    * @param {string} config.token Token value.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   validate({
     token,

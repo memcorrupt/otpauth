@@ -97,16 +97,16 @@ class HOTP {
    * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
    * @param {number} [config.digits=6] Token length.
    * @param {number} [config.counter=0] Counter value.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
-  static generate({
+  static async generate({
     secret,
     algorithm = HOTP.defaults.algorithm,
     digits = HOTP.defaults.digits,
     counter = HOTP.defaults.counter,
   }) {
     const digest = new Uint8Array(
-      hmacDigest(algorithm, secret.buffer, uintToBuf(counter)),
+      await hmacDigest(algorithm, secret.buffer, uintToBuf(counter)),
     );
     const offset = digest[digest.byteLength - 1] & 15;
     const otp =
@@ -123,7 +123,7 @@ class HOTP {
    * Generates an HOTP token.
    * @param {Object} [config] Configuration options.
    * @param {number} [config.counter=this.counter++] Counter value.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   generate({ counter = this.counter++ } = {}) {
     return HOTP.generate({
@@ -143,9 +143,9 @@ class HOTP {
    * @param {number} config.digits Token length.
    * @param {number} [config.counter=0] Counter value.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
-  static validate({
+  static async validate({
     token,
     secret,
     algorithm,
@@ -159,7 +159,7 @@ class HOTP {
     let delta = null;
 
     for (let i = counter - window; i <= counter + window; ++i) {
-      const generatedToken = HOTP.generate({
+      const generatedToken = await HOTP.generate({
         secret,
         algorithm,
         digits,
@@ -180,7 +180,7 @@ class HOTP {
    * @param {string} config.token Token value.
    * @param {number} [config.counter=this.counter] Counter value.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   validate({ token, counter = this.counter, window }) {
     return HOTP.validate({

@@ -96,7 +96,7 @@ class TOTP {
    * @param {number} [config.digits=6] Token length.
    * @param {number} [config.period=30] Token time-step duration.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   static generate({
     secret,
@@ -117,7 +117,7 @@ class TOTP {
    * Generates a TOTP token.
    * @param {Object} [config] Configuration options.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-   * @returns {string} Token.
+   * @returns {Promise<string>} Token.
    */
   generate({ timestamp = Date.now() } = {}) {
     return TOTP.generate({
@@ -139,7 +139,7 @@ class TOTP {
    * @param {number} [config.period=30] Token time-step duration.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   static validate({
     token,
@@ -166,7 +166,7 @@ class TOTP {
    * @param {string} config.token Token value.
    * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
    * @param {number} [config.window=1] Window of counter values to test.
-   * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+   * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
    */
   validate({ token, timestamp, window }) {
     return TOTP.validate({

@@ -96,14 +96,14 @@ declare class HOTP {
      * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
      * @param {number} [config.digits=6] Token length.
      * @param {number} [config.counter=0] Counter value.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     static generate({ secret, algorithm, digits, counter, }: {
         secret: Secret;
         algorithm?: string | undefined;
         digits?: number | undefined;
         counter?: number | undefined;
-    }): string;
+    }): Promise<string>;
     /**
      * Validates an HOTP token.
      * @param {Object} config Configuration options.
@@ -113,7 +113,7 @@ declare class HOTP {
      * @param {number} config.digits Token length.
      * @param {number} [config.counter=0] Counter value.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     static validate({ token, secret, algorithm, digits, counter, window, }: {
         token: string;
@@ -122,7 +122,7 @@ declare class HOTP {
         digits: number;
         counter?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Creates an HOTP object.
      * @param {Object} [config] Configuration options.
@@ -182,24 +182,24 @@ declare class HOTP {
      * Generates an HOTP token.
      * @param {Object} [config] Configuration options.
      * @param {number} [config.counter=this.counter++] Counter value.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     generate({ counter }?: {
         counter?: number | undefined;
-    } | undefined): string;
+    } | undefined): Promise<string>;
     /**
      * Validates an HOTP token.
      * @param {Object} config Configuration options.
      * @param {string} config.token Token value.
      * @param {number} [config.counter=this.counter] Counter value.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     validate({ token, counter, window }: {
         token: string;
         counter?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Returns a Google Authenticator key URI.
      * @returns {string} URI.
@@ -241,7 +241,7 @@ declare class TOTP {
      * @param {number} [config.digits=6] Token length.
      * @param {number} [config.period=30] Token time-step duration.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     static generate({ secret, algorithm, digits, period, timestamp, }: {
         secret: Secret;
@@ -249,7 +249,7 @@ declare class TOTP {
         digits?: number | undefined;
         period?: number | undefined;
         timestamp?: number | undefined;
-    }): string;
+    }): Promise<string>;
     /**
      * Validates a TOTP token.
      * @param {Object} config Configuration options.
@@ -260,7 +260,7 @@ declare class TOTP {
      * @param {number} [config.period=30] Token time-step duration.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     static validate({ token, secret, algorithm, digits, period, timestamp, window, }: {
         token: string;
@@ -270,7 +270,7 @@ declare class TOTP {
         period?: number | undefined;
         timestamp?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Creates a TOTP object.
      * @param {Object} [config] Configuration options.
@@ -330,24 +330,24 @@ declare class TOTP {
      * Generates a TOTP token.
      * @param {Object} [config] Configuration options.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     generate({ timestamp }?: {
         timestamp?: number | undefined;
-    } | undefined): string;
+    } | undefined): Promise<string>;
     /**
      * Validates a TOTP token.
      * @param {Object} config Configuration options.
      * @param {string} config.token Token value.
      * @param {number} [config.timestamp=Date.now] Timestamp value in milliseconds.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     validate({ token, timestamp, window }: {
         token: string;
         timestamp?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Returns a Google Authenticator key URI.
      * @returns {string} URI.

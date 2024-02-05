@@ -4,6 +4,6 @@
  * @param {string} algorithm Algorithm.
  * @param {ArrayBuffer} key Key.
  * @param {ArrayBuffer} message Message.
- * @returns {ArrayBuffer} Digest.
+ * @returns {Promise<ArrayBuffer>} Digest.
  */
-export function hmacDigest(algorithm: string, key: ArrayBuffer, message: ArrayBuffer): ArrayBuffer;
+export function hmacDigest(algorithm: string, key: ArrayBuffer, message: ArrayBuffer): Promise<ArrayBuffer>;

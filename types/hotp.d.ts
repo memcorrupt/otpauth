@@ -31,14 +31,14 @@ export class HOTP {
      * @param {string} [config.algorithm='SHA1'] HMAC hashing algorithm.
      * @param {number} [config.digits=6] Token length.
      * @param {number} [config.counter=0] Counter value.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     static generate({ secret, algorithm, digits, counter, }: {
         secret: Secret;
         algorithm?: string | undefined;
         digits?: number | undefined;
         counter?: number | undefined;
-    }): string;
+    }): Promise<string>;
     /**
      * Validates an HOTP token.
      * @param {Object} config Configuration options.
@@ -48,7 +48,7 @@ export class HOTP {
      * @param {number} config.digits Token length.
      * @param {number} [config.counter=0] Counter value.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     static validate({ token, secret, algorithm, digits, counter, window, }: {
         token: string;
@@ -57,7 +57,7 @@ export class HOTP {
         digits: number;
         counter?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Creates an HOTP object.
      * @param {Object} [config] Configuration options.
@@ -117,24 +117,24 @@ export class HOTP {
      * Generates an HOTP token.
      * @param {Object} [config] Configuration options.
      * @param {number} [config.counter=this.counter++] Counter value.
-     * @returns {string} Token.
+     * @returns {Promise<string>} Token.
      */
     generate({ counter }?: {
         counter?: number | undefined;
-    } | undefined): string;
+    } | undefined): Promise<string>;
     /**
      * Validates an HOTP token.
      * @param {Object} config Configuration options.
      * @param {string} config.token Token value.
      * @param {number} [config.counter=this.counter] Counter value.
      * @param {number} [config.window=1] Window of counter values to test.
-     * @returns {number|null} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
+     * @returns {Promise<number|null>} Token delta or null if it is not found in the search window, in which case it should be considered invalid.
      */
     validate({ token, counter, window }: {
         token: string;
         counter?: number | undefined;
         window?: number | undefined;
-    }): number | null;
+    }): Promise<number | null>;
     /**
      * Returns a Google Authenticator key URI.
      * @returns {string} URI.

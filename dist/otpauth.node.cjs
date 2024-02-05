@@ -40,8 +40,6 @@ const uintToBuf = num => {
   return buf;
 };
 
-var jsSHA = undefined;
-
 /**
  * "globalThis" ponyfill.
  * @see [A horrifying globalThis polyfill in universal JavaScript](https://mathiasbynens.be/notes/globalthis)
@@ -113,10 +111,11 @@ const hmacDigest = async (algorithm, key, message) => {
     const hmacKey = await crypto.subtle.importKey("raw", key, algorithm, false, ["sign"]);
     return await crypto.subtle.sign(algorithm, hmacKey, message);
   } else {
-    const hmac = new jsSHA(variant, "ARRAYBUFFER");
+    throw new Error("a");
+    /*const hmac = new jsSHA(variant, "ARRAYBUFFER");
     hmac.setHMACKey(key, "ARRAYBUFFER");
     hmac.update(message);
-    return hmac.getHMAC("ARRAYBUFFER");
+    return hmac.getHMAC("ARRAYBUFFER");*/
   }
 };
 

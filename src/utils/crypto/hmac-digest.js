@@ -1,5 +1,5 @@
 import * as crypto from "node:crypto";
-import jsSHA from "jssha";
+//import jsSHA from "jssha";
 
 import { globalScope } from "../global-scope.js";
 
@@ -57,10 +57,11 @@ const hmacDigest = async (algorithm, key, message) => {
 
     return await crypto.subtle.sign(algorithm, hmacKey, message);
   } else {
-    const hmac = new jsSHA(variant, "ARRAYBUFFER");
+    throw new Error("a");
+    /*const hmac = new jsSHA(variant, "ARRAYBUFFER");
     hmac.setHMACKey(key, "ARRAYBUFFER");
     hmac.update(message);
-    return hmac.getHMAC("ARRAYBUFFER");
+    return hmac.getHMAC("ARRAYBUFFER");*/
   }
 };
 

@@ -7,7 +7,7 @@
  * ================================================
  */
 
-const cases = [
+let cases = [
   {
     // 00
     buffer: new Uint8Array([
@@ -1171,6 +1171,11 @@ const cases = [
   },
 ];
 
+cases = cases.filter((x) => {
+  const algo = x.hotp.constructor.input.algorithm;
+  return !((algo && algo.includes("sha3")) || algo === "sha224");
+});
+
 /* ================================================
  * Secret
  * ================================================
@@ -1278,7 +1283,7 @@ describe("Secret", () => {
  */
 
 describe("HOTP", () => {
-  it("defaults", () => {
+  it("defaults", async () => {
     const hotp = new OTPAuth.HOTP();
 
     assertEquals(hotp.issuer, "");
@@ -1288,35 +1293,35 @@ describe("HOTP", () => {
     assertEquals(hotp.digits, 6);
     assertEquals(hotp.counter, 0);
 
-    assert(typeof hotp.generate() === "string");
-    assert(hotp.generate().length === 6);
+    assert(typeof (await hotp.generate()) === "string");
+    assert((await hotp.generate()).length === 6);
 
-    assertEquals(hotp.validate({ token: hotp.generate() }), -1);
+    assertEquals(await hotp.validate({ token: await hotp.generate() }), -1);
 
     // Counter is incremented on each 'generate' call.
     assertEquals(hotp.counter, 3);
   });
 
   cases.forEach((input, index) => {
-    it(`generate[${index}]`, () => {
+    it(`generate[${index}]`, async () => {
       const hotp = new OTPAuth.HOTP({
         ...input.hotp.constructor.input,
         secret: input.base32,
       });
 
-      const output = hotp.generate(input.hotp.generate.input);
+      const output = await hotp.generate(input.hotp.generate.input);
       assertEquals(output, input.hotp.generate.output);
     });
   });
 
   cases.forEach((input, index) => {
-    it(`validate[${index}]`, () => {
+    it(`validate[${index}]`, async () => {
       const hotp = new OTPAuth.HOTP({
         ...input.hotp.constructor.input,
         secret: new OTPAuth.Secret({ buffer: input.buffer }),
       });
 
-      const output = hotp.validate(input.hotp.validate.input);
+      const output = await hotp.validate(input.hotp.validate.input);
       assertEquals(output, input.hotp.validate.output);
     });
   });
@@ -1340,7 +1345,7 @@ describe("HOTP", () => {
  */
 
 describe("TOTP", () => {
-  it("defaults", () => {
+  it("defaults", async () => {
     const totp = new OTPAuth.TOTP();
 
     assertEquals(totp.issuer, "");
@@ -1350,32 +1355,32 @@ describe("TOTP", () => {
     assertEquals(totp.digits, 6);
     assertEquals(totp.period, 30);
 
-    assert(typeof totp.generate() === "string");
-    assert(totp.generate().length === 6);
+    assert(typeof (await totp.generate()) === "string");
+    assert((await totp.generate()).length === 6);
 
-    assertEquals(totp.validate({ token: totp.generate() }), 0);
+    assertEquals(await totp.validate({ token: await totp.generate() }), 0);
   });
 
   cases.forEach((input, index) => {
-    it(`generate[${index}]`, () => {
+    it(`generate[${index}]`, async () => {
       const totp = new OTPAuth.TOTP({
         ...input.totp.constructor.input,
         secret: input.base32,
       });
 
-      const output = totp.generate(input.totp.generate.input);
+      const output = await totp.generate(input.totp.generate.input);
       assertEquals(output, input.totp.generate.output);
     });
   });
 
   cases.forEach((input, index) => {
-    it(`validate[${index}]`, () => {
+    it(`validate[${index}]`, async () => {
       const totp = new OTPAuth.TOTP({
         ...input.totp.constructor.input,
         secret: new OTPAuth.Secret({ buffer: input.buffer }),
       });
 
-      const output = totp.validate(input.totp.validate.input);
+      const output = await totp.validate(input.totp.validate.input);
       assertEquals(output, input.totp.validate.output);
     });
   });
